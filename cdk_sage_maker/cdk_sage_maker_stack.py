@@ -3,6 +3,8 @@ from aws_cdk import (
     aws_s3 as s3,
     aws_lambda as _lambda,
     aws_sagemaker as sagemaker)
+import time
+from time import gmtime, strftime
 
 class CdkSageMakerStack(core.Stack):
 
@@ -36,13 +38,13 @@ class CdkSageMakerStack(core.Stack):
             "sklearn_model",
             execution_role_arn="arn:aws:iam::474422712127:role/sagemaker-role-BYOC",
             primary_container=container,
-            model_name=f'model-{sklearn_model.replace("_","-").replace("/","--")}',
+            model_name='sklearn-model-cdk' + strftime("%Y-%m-%d-%H-%M-%S", gmtime()),
         )
         
         endpoint_configuration = sagemaker.CfnEndpointConfig(
             self,
             "sklearn_endpoint_config",
-            endpoint_config_name=f'config-{sklearn_model.replace("_","-").replace("/","--")}',
+            endpoint_config_name='sklearn-epc-cdk' + strftime("%Y-%m-%d-%H-%M-%S", gmtime()),
             production_variants=[
                 sagemaker.CfnEndpointConfig.ProductionVariantProperty(
                     initial_instance_count=1,
@@ -58,6 +60,6 @@ class CdkSageMakerStack(core.Stack):
         endpoint = sagemaker.CfnEndpoint(
             self,
             "sklearn_endpoint",
-            endpoint_name=f'endpoint-{sklearn_model.replace("_","-").replace("/","--")}',
+            endpoint_name='sklearn-ep-cdk' + strftime("%Y-%m-%d-%H-%M-%S", gmtime()),
             endpoint_config_name=endpoint_configuration.endpoint_config_name,
         )
